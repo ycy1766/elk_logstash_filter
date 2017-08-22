@@ -1,0 +1,8 @@
+filter {
+  if [type] == "mysql_error" {
+    grok {
+        match => [ "message", "%{TIMESTAMP_ISO8601:timestamp} %{WORD:log_seq} \[%{WORD:log_level}\] %{GREEDYDATA:log_message}" ]
+    }
+
+  }
+}
