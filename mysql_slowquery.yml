@@ -1,0 +1,21 @@
+
+filter {
+  if [type] == "mysql-slow" {
+    grok {
+        match => [ "message", "^# User@Host: %{USER:query_user}\[%{WORD}\]%{SPACE}@%{SPACE}\[%{IPORHOST:query_ip}\]" ]
+    }
+    grok {
+        match => [ "message", "^# Query_time: %{NUMBER:query_time:float}%{SPACE}Lock_time:%{SPACE}%{NUMBER:lock_time:float}%{SPACE}Rows_sent:%{SPACE}%{NUMBER:ro
+ws_sent:int}%{SPACE}Rows_examined:%{SPACE}%{NUMBER:rows_examined:int}" ]
+    }
+    grok {
+        match => [ "message", "(?m)SET timestamp=%{NUMBER:timestamp};%{GREEDYDATA:query}" ]
+    }
+    date {
+        match => [ "timestamp", "UNIX" ]
+    }
+    mutate {
+        remove_field => "timestamp"
+    }
+  }
+}
